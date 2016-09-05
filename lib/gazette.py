@@ -11,6 +11,8 @@ __copyright__ = 'No copyright, just copyleft! ;)'
 ###########
 # imports #
 ###########
+from __future__ import unicode_literals
+
 from collections import defaultdict
 import codecs
 
@@ -39,6 +41,39 @@ def load(path):
     return dic, max_key_len
 
 
+def _index_mid_to_wid(sent):
+    """
+    make index map from morp ID to word ID
+    :param  sent:  sentence JSON object
+    :return:       index
+    """
+    index = {}
+    for word in sent['word']:
+        begin = word['begin']
+        end = word['end']
+        word_id = word['id']
+        for morp_id in range(begin, end+1):
+            index[morp_id] = word_id
+    return index
+
+
+def _make_text(mid2wid, morps, begin, end):
+    """
+    make text with morp list from 'begin' to 'end'
+    :param  mid2wid:  morp ID to word ID index
+    :param  morps:    morp list
+    :param  begin:    begin index (inclusive)
+    :param  end:      end index (exclusive)
+    :return:          text
+    """
+    lemmas = [morps[begin]['lemma'], ]
+    for idx in range(begin+1, end):
+        if mid2wid[idx-1] != mid2wid[idx]:    # if go over word boundary
+            lemmas.append(' ')
+        lemmas.append(morps[idx]['lemma'])
+    return ''.join(lemmas)
+
+
 def tag_nes(gazette, max_key_len, sent):
     """
     tag NEs in sentence with gazette
@@ -48,17 +83,18 @@ def tag_nes(gazette, max_key_len, sent):
     :return:              tagged JSON object
     """
     nes = []
-    lemmas = [_['lemma'] for _ in sent['morp']]
-    lemmas_lower = [_.lower() for _ in lemmas]
-    for begin in range(len(lemmas)):
-        for end in range(len(lemmas), begin, -1):
-            key = ' '.join(lemmas_lower[begin:end])
-            if len(key) > max_key_len:
+    mid2wid = _index_mid_to_wid(sent)
+    morps = sent['morp']
+    for begin in range(len(morps)):
+        for end in range(len(morps), begin, -1):
+            text = _make_text(mid2wid, morps, begin, end)
+            if len(text) > max_key_len:
                 continue
+            key = text.lower()
             if key in gazette:
                 ne_obj = {}
                 ne_obj['id'] = len(nes)
-                ne_obj['text'] = ' '.join(lemmas[begin:end])
+                ne_obj['text'] = text
                 ne_obj['type'] = gazette[key]
                 ne_obj['begin'] = begin
                 ne_obj['end'] = end-1
