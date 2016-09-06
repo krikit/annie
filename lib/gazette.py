@@ -13,7 +13,6 @@ __copyright__ = 'No copyright, just copyleft! ;)'
 ###########
 from __future__ import unicode_literals
 
-from collections import defaultdict
 import codecs
 import re
 
@@ -21,43 +20,23 @@ import re
 #############
 # functions #
 #############
-def load_gazette(path):
+def load(path):
     """
     load gazette file
     :param  path:  gazette file path
     :return:       (dictionary, maximum length of gazette keys) pair
     """
-    dic = defaultdict(list)
+    dic = {}
     max_key_len = 0
     for line in codecs.open(path, 'rt', encoding='UTF-8'):
         line = line.rstrip('\r\n')
         if not line:
             continue
         key, val = line.rsplit('\t', 1)
-        if val in ['DT', 'TI']:
-            continue
-        key = re.sub(r'\s+', '', key).lower()
-        if val not in dic[key]:
-            dic[key].append(val)
         if len(key) > max_key_len:
             max_key_len = len(key)
-    return dic, max_key_len
-
-
-def load_dt_ti_dic(path):
-    """
-    load date and time dictionary
-    :param  path:  date and time dicitonary path
-    :return:       dictionary
-    """
-    dic = {}
-    for line in codecs.open(path, 'rt', encoding='UTF-8'):
-        line = line.rstrip('\r\n')
-        if not line:
-            continue
-        key, val = line.rsplit('\t', 1)
         dic[key] = val.split(',')
-    return dic
+    return dic, max_key_len
 
 
 def _index_mid_to_wid(sent):
@@ -119,10 +98,9 @@ def _find_left_bound(morps, begin, max_key_len):
     return len(morps)
 
 
-def tag_nes(dt_ti_dic, gazette, max_key_len, sent):
+def tag_nes(gazette, max_key_len, sent):
     """
     tag NEs in sentence with gazette
-    :param  dt_ti_dic:    date and time dictionary
     :param  gazette:      gazette dictionary
     :param  max_key_len:  maximum length of gazette keys
     :param  sent:         sentence JSON object
@@ -137,9 +115,9 @@ def tag_nes(dt_ti_dic, gazette, max_key_len, sent):
         for end in range(left_bound-1, begin, -1):
             text = make_text(mid2wid, morps, begin, end)
             categories = []
-            dt_ti_ptn = make_dt_ti_ptn(text)
-            if dt_ti_ptn in dt_ti_dic:
-                categories = dt_ti_dic[dt_ti_ptn]
+            ptn = make_dt_ti_ptn(text)
+            if ptn in gazette:
+                categories = gazette[ptn]
             else:
                 key = re.sub(r'\s+', '', text).lower()
                 if key in gazette:
@@ -150,7 +128,7 @@ def tag_nes(dt_ti_dic, gazette, max_key_len, sent):
                 ne_obj['text'] = text
                 ne_obj['type'] = categories
                 ne_obj['begin'] = begin
-                ne_obj['end'] = end-1
+                ne_obj['end'] = end - 1
                 nes.append(ne_obj)
                 break
     return nes

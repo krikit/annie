@@ -48,30 +48,24 @@ def main():
     """
     baseline system which tag only with gazette
     """
-    dt_ti_dic = gazette.load_dt_ti_dic(_OPTS.dt_ti_dic)
-    gazette_dic, max_key_len = gazette.load_gazette(_OPTS.gazette)
+    dic, max_key_len = gazette.load(_OPTS.gazette)
 
     json_obj = json.load(sys.stdin)
     for sent in json_obj['sentence']:
-        sent['NE'] = _filter_nes(gazette.tag_nes(dt_ti_dic, gazette_dic, max_key_len, sent))
+        sent['NE'] = _filter_nes(gazette.tag_nes(dic, max_key_len, sent))
     json.dump(json_obj, sys.stdout, ensure_ascii=False, indent=2)
 
 
 if __name__ == '__main__':
     _PARSER = optparse.OptionParser(description='baseline system which tag only with gazette')
-    _PARSER.add_option('-d', dest='dt_ti_dic', help='date and time dictionary', metavar='FILE')
     _PARSER.add_option('-g', dest='gazette', help='gazette', metavar='FILE')
     _PARSER.add_option('--input', help='input file <default: stdin>', metavar='FILE')
     _PARSER.add_option('--output', help='output file <default: stdout>', metavar='FILE')
     _OPTS, _ = _PARSER.parse_args()
-    if not _OPTS.dt_ti_dic:
-        print('-d option is required', file=sys.stderr)
-        _PARSER.print_usage()
-        sys.exit(1)
     if not _OPTS.gazette:
         print('-g option is required', file=sys.stderr)
         _PARSER.print_usage()
-        sys.exit(2)
+        sys.exit(1)
     if _OPTS.input:
         sys.stdin = codecs.open(_OPTS.input, 'rt', encoding='UTF-8')
     if _OPTS.output:
