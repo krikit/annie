@@ -15,6 +15,7 @@ from __future__ import unicode_literals
 
 from collections import defaultdict
 import codecs
+import re
 
 
 #############
@@ -55,6 +56,16 @@ def _index_mid_to_wid(sent):
         for morp_id in range(begin, end+1):
             index[morp_id] = word_id
     return index
+
+
+def make_dt_ti_ptn(text):
+    """
+    make pattern from date(DT) and time(TI) entity text
+    :param  text:  entity text
+    :return:       pattern
+    """
+    ptn = re.sub(r'\s+', '', text)    # remove spaces
+    return re.sub(r'\d+', '0', ptn)    # replace numbers with single '0'
 
 
 def _make_text(mid2wid, morps, begin, end):
