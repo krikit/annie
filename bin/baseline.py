@@ -23,21 +23,22 @@ import optparse
 import sys
 
 import gazette
+import sentence
 
 
 #############
 # functions #
 #############
-def _filter_nes(nes):
+def _filter_dic_nes(dic_nes):
     """
-    filter NEs
-    :param  nes:  raw tagged NEs
-    :return:      filtered NEs
+    filter tagged(dictionary matched) NEs
+    :param  dic_nes:  raw tagged NEs
+    :return:          filtered NEs
     """
-    filtered = [_ for _ in nes if len(_['text']) > 1]    # filter out length 1
+    filtered = [_ for _ in dic_nes if len(_.text()) > 1]    # filter out length 1
     for idx, entity in enumerate(filtered):
-        entity['id'] = idx    # reset id
-        entity['type'] = entity['type'][0]    # select first type of list
+        entity.set_id(idx)    # reset id
+        entity.set_category(entity.category()[0])    # select first type of list
     return filtered
 
 
@@ -51,8 +52,11 @@ def main():
     dic, max_key_len = gazette.load(_OPTS.gazette)
 
     json_obj = json.load(sys.stdin)
-    for sent in json_obj['sentence']:
-        sent['NE'] = _filter_nes(gazette.tag_nes(dic, max_key_len, sent))
+    for sent_obj in json_obj['sentence']:
+        sent = sentence.Sentence(sent_obj)
+        sent.tag_nes(dic, max_key_len)
+        filtered = [_.json_obj for _ in _filter_dic_nes(sent.dic_nes)]
+        sent_obj['NE'] = filtered
     json.dump(json_obj, sys.stdout, ensure_ascii=False, indent=2)
 
 

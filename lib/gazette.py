@@ -39,22 +39,6 @@ def load(path):
     return dic, max_key_len
 
 
-def _index_mid_to_wid(sent):
-    """
-    make index map from morp ID to word ID
-    :param  sent:  sentence JSON object
-    :return:       index
-    """
-    index = {}
-    for word in sent['word']:
-        begin = word['begin']
-        end = word['end']
-        word_id = word['id']
-        for morp_id in range(begin, end+1):
-            index[morp_id] = word_id
-    return index
-
-
 def make_dt_ti_ptn(text):
     """
     make pattern from date(DT) and time(TI) entity text
@@ -65,70 +49,68 @@ def make_dt_ti_ptn(text):
     return re.sub(r'\d', '0', ptn)    # replace all numbers with zero
 
 
-def make_text(mid2wid, morps, begin, end):
+def make_text(sent, begin, end):
     """
     make text with morp list from 'begin' to 'end'
-    :param  mid2wid:  morp ID to word ID index
-    :param  morps:    morp list
+    :param  sent:     sentence
     :param  begin:    begin index (inclusive)
     :param  end:      end index (exclusive)
     :return:          text
     """
-    lemmas = [morps[begin]['lemma'], ]
+    lemmas = [sent.morps[begin].lemma(), ]
     for idx in range(begin+1, end):
-        if mid2wid[idx-1] != mid2wid[idx]:    # if go over word boundary
+        if sent.mid2wid[idx-1] != sent.mid2wid[idx]:    # if go over word boundary
+            # insert space between words
             lemmas.append(' ')
-        lemmas.append(morps[idx]['lemma'])
+        lemmas.append(sent.morps[idx].lemma())
     return ''.join(lemmas)
 
 
-def _find_left_bound(morps, begin, max_key_len):
+def _find_right_bound(morps, begin, max_key_len):
     """
-    find left bound from 'begin' with maximum key length
+    find right bound from 'begin' with maximum key length
     :param  morps:        morph list
     :param  begin:        begin index
     :param  max_key_len:  maximum key length
-    :return:              left bound
+    :return:              right bound
     """
-    len_sum = len(morps[begin]['lemma'])
+    len_sum = len(morps[begin].lemma())
     for idx in range(begin+1, len(morps)):
-        len_sum += len(morps[idx]['lemma'])
+        len_sum += len(morps[idx].lemma())
         if len_sum > max_key_len:
             return idx
     return len(morps)
 
 
-def tag_nes(gazette, max_key_len, sent):
+def tag_nes(dic, max_key_len, sent):
     """
     tag NEs in sentence with gazette
-    :param  gazette:      gazette dictionary
+    :param  dic:          gazette dictionary
     :param  max_key_len:  maximum length of gazette keys
     :param  sent:         sentence JSON object
     :return:              tagged JSON object
     """
-    nes = []
-    mid2wid = _index_mid_to_wid(sent)
-    morps = sent['morp']
-    for begin in range(len(morps)):
-        left_bound = _find_left_bound(morps, begin, max_key_len)
+    dic_nes = []
+    for begin in range(len(sent.morps)):
+        right_bound = _find_right_bound(sent.morps, begin, max_key_len)
         # find pattern and key, longest first
-        for end in range(left_bound-1, begin, -1):
-            text = make_text(mid2wid, morps, begin, end)
+        for end in range(right_bound, begin, -1):
+            text = make_text(sent, begin, end)
             categories = []
             ptn = make_dt_ti_ptn(text)
-            if ptn in gazette:
-                categories = gazette[ptn]
+            if ptn in dic:
+                categories = dic[ptn]
             else:
                 key = re.sub(r'\s+', '', text).lower()
-                if key in gazette:
-                    categories = gazette[key]
+                if key in dic:
+                    categories = dic[key]
             if categories:
-                ne_obj = {}
-                ne_obj['id'] = len(nes)
-                ne_obj['text'] = text
-                ne_obj['type'] = categories
-                ne_obj['begin'] = begin
-                ne_obj['end'] = end - 1
-                nes.append(ne_obj)
+                dic_ne_obj = {}
+                dic_ne_obj['id'] = len(dic_nes)
+                dic_ne_obj['text'] = text
+                dic_ne_obj['type'] = categories
+                dic_ne_obj['begin'] = begin
+                dic_ne_obj['end'] = end - 1
+                dic_nes.append(dic_ne_obj)
                 break
-    return nes
+    return dic_nes
