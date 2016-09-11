@@ -94,7 +94,7 @@ def tag_nes(dic, max_key_len, sent):
     for begin in range(len(sent.morps)):
         right_bound = _find_right_bound(sent.morps, begin, max_key_len)
         # find pattern and key, longest first
-        for end in range(right_bound, begin, -1):
+        for end in range(right_bound, begin, -1):    # end is exclusive
             text = make_text(sent, begin, end)
             categories = []
             ptn = make_dt_ti_ptn(text)
@@ -110,7 +110,7 @@ def tag_nes(dic, max_key_len, sent):
                 dic_ne_obj['text'] = text
                 dic_ne_obj['type'] = categories
                 dic_ne_obj['begin'] = begin
-                dic_ne_obj['end'] = end - 1
+                dic_ne_obj['end'] = end-1    # NE's end is inclusive
                 dic_nes.append(dic_ne_obj)
                 break
     return dic_nes
