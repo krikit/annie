@@ -20,13 +20,9 @@ import json
 import optparse
 import sys
 
+import feature
 import gazette
 import sentence
-
-
-#############
-# functions #
-#############
 
 
 ########
@@ -43,8 +39,8 @@ def main():
         sent = sentence.Sentence(sent_obj)
         sent.tag_nes(dic, max_key_len)
         for morp in sent.morps:
-            print('%s\t%s\t%s\t%s' % (sent.label(morp.id()), morp.lemma(), morp.tag(),
-                                      sent.dic_label(morp.id())))
+            features = feature.get_all_feat(sent, morp.id())
+            print('%s\t%s' % (sent.label(morp.id()), '\t'.join(features)))
         print()
 
 
