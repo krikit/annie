@@ -78,7 +78,8 @@ def _make_nes(sent, iob):
             if not category:
                 raise RuntimeError('I- tag without B- tag')
             if label[2:] != category:
-                raise RuntimeError('I- category is different from B-')
+                logging.warn('I- category is different from B-')
+                category = label[2:]
             end = idx
     if category:
         ne_obj = {}
