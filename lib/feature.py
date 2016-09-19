@@ -137,6 +137,16 @@ def get_sfx_feat(sent, morp_id):
     return feat_dic1
 
 
+def get_lex_form_feat(sent, morp_id):
+    """
+    lexical form features
+    :param  sent:     sentence object
+    :param  morp_id:  morpheme ID
+    :return:          feature set
+    """
+    return _get_position_feat(sent, morp_id,
+                              lambda sent, morp_id: sent.morps[morp_id].lex_form(), 'F')
+
 def get_other_feat(sent, morp_id):
     """
     get other features of given morpheme position from sentence
@@ -221,6 +231,15 @@ def get_all_conjunction_features(feat_dic):
     return conjunction_feat_dic
 
 
+def remove_features(feat_dic):
+    """
+    remove  features
+    :param  feat_dic:  extracted all features
+    """
+    for key in ['N-2', 'N-1', 'N_0', 'N+1', 'N+2']:
+        del feat_dic[key]
+
+
 def get_all_feat(sent, morp_id):
     """
     get all features of given morpheme position from sentence
@@ -235,6 +254,8 @@ def get_all_feat(sent, morp_id):
     feat_dic.update(get_len_feat(sent, morp_id))
     feat_dic.update(get_pfx_feat(sent, morp_id))
     feat_dic.update(get_sfx_feat(sent, morp_id))
+    feat_dic.update(get_lex_form_feat(sent, morp_id))
     feat_dic.update(get_other_feat(sent, morp_id))
     feat_dic.update(get_all_conjunction_features(feat_dic))
+    remove_features(feat_dic)
     return ['%s=%s' % (key, val) for key, val in sorted(feat_dic.items())]

@@ -111,6 +111,51 @@ class Morp(object):
         """
         return self.json_obj['type']
 
+    def lex_form(self):
+        """
+        get lexical form
+        :return:  lexical form
+        """
+        form = []
+        for char in self.lemma():
+            if self.is_hangul(char):
+                form.append('가')
+            elif (ord('a') <= ord(char) <= ord('z')) or (ord('A') <= ord(char) <= ord('Z')):
+                form.append('A')
+            elif ord('0') <= ord(char) <= ord('9'):
+                form.append('0')
+            elif self.is_cjk(char):
+                form.append('漢')
+            else:
+                form.append('.')
+        return ''.join(form)
+
+    @classmethod
+    def is_hangul(cls, char):
+        """
+        whether character is hangul character
+        :param  char:  character
+        :return:       whether hangul character or not
+        """
+        code = ord(char)
+        if 0x1100 <= code <= 0x11FF:
+            return True
+        elif 0xAC00 <= code <= 0xD7AF:
+            return True
+        return False
+
+    @classmethod
+    def is_cjk(cls, char):
+        """
+        whether character is CJK character
+        :param  char:  character
+        :return:       whether CJK character or not
+        """
+        code = ord(char)
+        if 0x4E00 <= code <= 0x9FFF:
+            return True
+        return False
+
 
 class Word(object):
     """
