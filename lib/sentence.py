@@ -90,6 +90,13 @@ class Morp(object):
         """
         self.json_obj = json_obj
 
+    def to_dbg_str(self):
+        """
+        make string for debugging
+        :return:  debug string
+        """
+        return '%d:%s/%s' % (self.id(), self.lemma(), self.tag())
+
     def id(self):    # pylint: disable=C0103
         """
         ID
@@ -209,6 +216,20 @@ class Sentence(object):    # pylint: disable=R0902
         self._index_mid_to_nid()
         self.dic_nes = []
         self.mid2did = {}    # index of morp ID -> gazette matched NE ID
+
+    def to_dbg_str(self):
+        """
+        make string for debugging
+        :return:  debug string
+        """
+        return '[%d] %s' % (self.id(), ' '.join([_.to_dbg_str() for _ in self.morps]))
+
+    def id(self):    # pylint: disable=C0103
+        """
+        ID
+        :return:  ID
+        """
+        return self.json_obj['id']
 
     @classmethod
     def _label(cls, index, nes, morp_id):

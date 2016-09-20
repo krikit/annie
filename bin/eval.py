@@ -16,17 +16,45 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import codecs
-from collections import Counter
+from collections import Counter, namedtuple
 import json
 import logging
 logging.basicConfig(level=logging.INFO)
 import optparse
 import sys
 
+import sentence
+
+
+###########
+# options #
+###########
+ERR_CATE = set()    # list of NE categories to print error cases
+
+
+#########
+# types #
+#########
+NE = namedtuple('NE', ['begin', 'end', 'cate'])    # named entity in JSON to evaluate
+
 
 #############
 # functions #
 #############
+def _morp_dbg_str(sent, begin, end):
+    """
+    make debug string of morphemes
+    :param  sent:   sentence object
+    :param  begin:  morpheme begin ID (inclusive)
+    :param  end:    morpheme end ID (inclusive)
+    :return:        debug string
+    """
+    left_context = ' '.join(_.to_dbg_str() for _ in sent.morps[begin-2:begin])
+    entity_str = ' '.join(_.to_dbg_str() for _ in sent.morps[begin:end+1])
+    right_context = ' '.join(_.to_dbg_str() for _ in sent.morps[end+1:end+3])
+    return '%20s    [[  %s  ]]    %s' % (left_context, entity_str, right_context)
+
+
 def _count(gold, test):
     """
     count gold, test and matched NEs
@@ -43,12 +71,24 @@ def _count(gold, test):
             logging.error('\tgold: %s', gold_sent['text'])
             logging.error('\ttest: %s', test_sent['text'])
             sys.exit(2)
-        gold_nes = set([(_['text'], _['type'], _['begin'], _['end']) for _ in gold_sent['NE']])
-        gold_cnt.update([category for _, category, _, _ in gold_nes])
-        test_nes = set([(_['text'], _['type'], _['begin'], _['end']) for _ in test_sent['NE']])
-        test_cnt.update([category for _, category, _, _ in test_nes])
+        gold_nes = set([NE(_['begin'], _['end'], _['type']) for _ in gold_sent['NE']])
+        gold_cnt.update([_.cate for _ in gold_nes])
+        test_nes = set([NE(_['begin'], _['end'], _['type']) for _ in test_sent['NE']])
+        test_cnt.update([_.cate for _ in test_nes])
         match_nes = gold_nes & test_nes
-        match_cnt.update([category for _, category, _, _ in match_nes])
+        match_cnt.update([_.cate for _ in match_nes])
+        if ERR_CATE:
+            gold_only_nes = set([_ for _ in (gold_nes - match_nes) if _.cate in ERR_CATE])
+            test_only_nes = set([_ for _ in (test_nes - match_nes) if _.cate in ERR_CATE])
+            if gold_only_nes or test_only_nes:
+                sent = sentence.Sentence(gold_sent)
+                print(sent.to_dbg_str(), file=sys.stderr)
+            for ett in sorted(list(gold_only_nes)):
+                print('\t[G] (%s) %s' % (ett.cate, _morp_dbg_str(sent, ett.begin, ett.end)),
+                      file=sys.stderr)
+            for ett in sorted(list(test_only_nes)):
+                print('\t[T] (%s) %s' % (ett.cate, _morp_dbg_str(sent, ett.begin, ett.end)),
+                      file=sys.stderr)
     return gold_cnt, test_cnt, match_cnt
 
 
@@ -102,6 +142,9 @@ if __name__ == '__main__':
     _PARSER.add_option('-g', dest='gold', help='gold standard', metavar='FILE')
     _PARSER.add_option('--input', help='input file <default: stdin>', metavar='FILE')
     _PARSER.add_option('--output', help='output file <default: stdout>', metavar='FILE')
+    _PARSER.add_option('--err-cate', help='list of NE categories to print error cases',
+                       metavar='LIST')
+    _PARSER.add_option('--error', help='error file <default: stderr>', metavar='FILE')
     _OPTS, _ = _PARSER.parse_args()
     if not _OPTS.gold:
         print('-g option is required', file=sys.stderr)
@@ -111,4 +154,8 @@ if __name__ == '__main__':
         sys.stdin = codecs.open(_OPTS.input, 'rt', encoding='UTF-8')
     if _OPTS.output:
         sys.stdout = codecs.open(_OPTS.output, 'wt', encoding='UTF-8')
+    if _OPTS.error:
+        sys.stderr = codecs.open(_OPTS.error, 'wt', encoding='UTF-8')
+    if _OPTS.err_cate:
+        ERR_CATE = set(_OPTS.err_cate.split(','))
     main()
