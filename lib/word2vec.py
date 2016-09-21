@@ -17,7 +17,6 @@ from collections import Counter
 import cPickle
 import logging
 logging.basicConfig(level=logging.INFO)
-import random
 import re
 
 
@@ -25,7 +24,6 @@ import re
 # constants #
 #############
 DIMENSION = 50    # dimension of vector
-_EPSILON = 0.000001    # very small number
 
 
 #############
@@ -109,14 +107,6 @@ def load(path):
     return cPickle.load(open(path, 'rb'))
 
 
-def _epsilon():
-    """
-    randomly generated very small number
-    :return:  epsilon
-    """
-    return random.uniform(-_EPSILON / 2.0, +_EPSILON / 2.0)
-
-
 def get(w2v_dic, lemma, tag):
     """
     get vector with lemma and tag
@@ -131,7 +121,7 @@ def get(w2v_dic, lemma, tag):
         return w2v_dic[lemma, tag]
     if (tag, ) in w2v_dic:
         return w2v_dic[tag, ]
-    return [_epsilon() for _ in range(DIMENSION)]
+    return [0.0, ] * DIMENSION
 
 
 def eos(w2v_dic):

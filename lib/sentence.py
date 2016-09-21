@@ -299,3 +299,17 @@ class Sentence(object):    # pylint: disable=R0902
             dic_ne_id = dic_ne.id()
             for morp_id in range(dic_ne.begin(), dic_ne.end()+1):
                 self.mid2did[morp_id] = dic_ne_id
+
+    def is_person(self, morp_id):
+        """
+        whether current morpheme is single morpheme person(PS) or not
+        :param  morp_id:  morpheme ID
+        :return:          person or not
+        """
+        if morp_id not in self.mid2nid:
+            return False
+        ne_id = self.mid2nid[morp_id]
+        entity = self.nes[ne_id]
+        if entity.category() != 'PS':
+            return False
+        return entity.begin() == entity.end()
