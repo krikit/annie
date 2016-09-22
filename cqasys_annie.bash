@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 
 
+################
+# environments #
+################
+base_dir=`dirname $0`
+if [ ! -d /tmp/venv_annie ]; then
+    (>&2 echo "0) setting environments")
+    tar -C /tmp -xzf ${base_dir}/env/venv_annie.tar.gz
+fi
+source /tmp/venv_annie/bin/activate
+
+
 #############
 # arguments #
 #############
-base_dir=`dirname $0`
 function print_usage() {
     echo "Usage: `basename $0` [options]"
     echo "Options:"
