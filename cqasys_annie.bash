@@ -4,12 +4,13 @@
 #############
 # arguments #
 #############
+base_dir=`dirname $0`
 function print_usage() {
     echo "Usage: `basename $0` [options]"
     echo "Options:"
     echo "  -h, --help     show this help message and exit"
-    echo "  -r DIR         resource dir"
     echo "  -i FILE        input file"
+    echo "  --rsc-dir=DIR  resource dir <default: ${base_dir}/rsc>"
     echo "  --output=FILE  output file <default: result.json>"
     if [ -z "$1" ]; then
         exit 0
@@ -20,8 +21,7 @@ function print_usage() {
     fi
 }
 
-base_dir=`dirname $0`
-OPTS=`python ${base_dir}/lib/getopts.py "hr:i:" "help,output=" $@`
+OPTS=`python ${base_dir}/lib/getopts.py "hi:" "help,rsc-dir=,output=" $@`
 if [[ $? -ne 0 ]]; then
     print_usage "option parse error"
     exit -1
@@ -35,12 +35,12 @@ while [[ $# -ge 1 ]]; do
         -h|--help)
             print_usage
             ;;
-        -r)
-            rsc_dir="$2"
-            shift
-            ;;
         -i)
             input="$2"
+            shift
+            ;;
+        --rsc-dir)
+            rsc_dir="$2"
             shift
             ;;
         --output)
@@ -55,7 +55,10 @@ done
 
 # resource dir
 if [ "${rsc_dir}" = "" ]; then
-    print_usage "-r option is required"
+    rsc_dir=${base_dir}/rsc
+fi
+if [ ! -d ${rsc_dir} ]; then
+    echo "${rsc_dir} not found"
     exit 1
 fi
 
@@ -107,7 +110,7 @@ bin_dir=${base_dir}/bin
 
 # 1) JSON 코퍼스를 CRF 자질 파일로 변환
 (>&2 echo "1) convert JSON input to CRF feature")
-feat_file=/tmp/`basename ${input}`.crffeat
+feat_file=${output}.crffeat
 python ${bin_dir}/json2feat.py -g ${rsc_dir}/gazette.annie \
                                 --input=${input} \
                                 --output=${feat_file}
@@ -120,9 +123,11 @@ fi
 # 2) crfsuite를 이용해 태깅
 (>&2 echo "2) tag with CRF model")
 crfsuite_bin=${bin_dir}/crfsuite.`uname`
-tag_file=/tmp/`basename ${input}`.crftag
+tag_file=${output}.crftag
 ${crfsuite_bin} tag -m ${crf_model} ${feat_file} > ${tag_file}
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
+    rm -f ${feat_file}
+else
     echo "fail to tag with CRF model"
     exit 6
 fi
@@ -130,11 +135,13 @@ fi
 
 # 3) 태깅한 파일을 JSON 포맷으로 변환
 (>&2 echo "3) convert IOB2 to JSON")
-crf_predict=/tmp/`basename ${input}`.crf
+crf_predict=${output}.crf
 python ${bin_dir}/iob2json.py -j ${input} \
                               --input=${tag_file} \
                               --output=${crf_predict}
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
+    rm -f ${tag_file}
+else
     echo "fail to make JSON with tagged file"
     exit 7
 fi
@@ -146,7 +153,9 @@ python ${bin_dir}/tag_ps.py -w ${w2v_dic} \
                             -m ${rsc_dir}/nusvc_model.pkl \
                             --input=${crf_predict} \
                             --output=${output}
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
+    rm -f ${crf_predict}
+else
     echo "fail to make JSON with tagged file"
     exit 8
 fi
