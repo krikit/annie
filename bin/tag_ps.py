@@ -59,7 +59,6 @@ def _tag_ps(w2v_dic, svm_model, sent):
             ps_ne_obj['begin'] = morp.id()
             ps_ne_obj['end'] = morp.id()
             ps_nes.append(ps_ne_obj)
-        print(morp.to_dbg_str(), is_ps, file=sys.stderr)
     return ps_nes
 
 
@@ -72,7 +71,7 @@ def _merge_ne(sent, ps_nes):
     """
     merged = sent.json_obj['NE'] + ps_nes
     merged.sort(key=lambda entity: entity['begin'])
-    for idx, entity in merged:
+    for idx, entity in enumerate(merged):
         entity['id'] = idx
     return merged
 
