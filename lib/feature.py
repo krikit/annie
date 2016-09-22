@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 """
 feature utility module
 __author__ = 'krikit <krikit@naver.com>'
@@ -13,11 +11,13 @@ __copyright__ = 'No copyright, just copyleft! ;)'
 ###########
 from __future__ import unicode_literals
 
+import word2vec
+
 
 #############
 # constants #
 #############
-WINDOW = 2    # left/right window size for feature extraction
+CRF_WINDOW = 2    # left/right window size for CRF feature extraction
 
 
 #############
@@ -49,7 +49,7 @@ def _get_position_feat(sent, morp_id, func, key_pfx):
     :return:          feature set
     """
     feat_dic = {}
-    for win_idx in range(-WINDOW, WINDOW+1):
+    for win_idx in range(-CRF_WINDOW, CRF_WINDOW+1):
         morp_idx = morp_id + win_idx
         if morp_idx < 0:
             val = '<s>'
@@ -242,7 +242,7 @@ def remove_features(feat_dic):
 
 def get_all_feat(sent, morp_id):
     """
-    get all features of given morpheme position from sentence
+    get all CRF features of given morpheme position from sentence
     :param  sent:     sentence object
     :param  morp_id:  morpheme ID
     :return:          feature set
@@ -259,3 +259,23 @@ def get_all_feat(sent, morp_id):
     feat_dic.update(get_all_conjunction_features(feat_dic))
     remove_features(feat_dic)
     return ['%s=%s' % (key, val) for key, val in sorted(feat_dic.items())]
+
+
+def get_svm_feat(w2v_dic, window, sent, morp_id):
+    """
+    get SVM features of given morpheme position from sentence
+    :param  w2v_dic:  word2vec dictionary
+    :param  sent:     sentence object
+    :param  morp_id:  morpheme ID
+    :return:          feature vector
+    """
+    feat_vec = []
+    morp = sent.morps[morp_id]
+    for win_idx in range(-window, window+1):
+        morp_idx = morp.id() + win_idx
+        if morp_idx < 0 or morp_idx >= len(sent.morps):
+            vec = word2vec.eos(w2v_dic)
+        else:
+            vec = word2vec.get(w2v_dic, sent.morps[morp_idx].lemma(), sent.morps[morp_idx].tag())
+        feat_vec += vec
+    return feat_vec
