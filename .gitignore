@@ -1,2 +1,9 @@
-data/
 .ipynb_checkpoints/
+*.pyc
+
+data/
+
+rsc/crf.model
+rsc/word2vec.pkl
+
+result.json

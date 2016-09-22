@@ -209,7 +209,7 @@ class Sentence(object):    # pylint: disable=R0902
         self.json_obj = json_obj
         self.words = [Word(_) for _ in self.json_obj['word']]
         self.morps = [Morp(_) for _ in self.json_obj['morp']]
-        self.nes = [NE(_) for _ in self.json_obj['NE']]
+        self.nes = [NE(_) for _ in self.json_obj['NE']] if 'NE' in self.json_obj else []
         self.mid2wid = {}    # index of morp ID -> word ID
         self._index_mid_to_wid()
         self.mid2nid = {}    # index of morp ID -> NE ID

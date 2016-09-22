@@ -16,7 +16,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import codecs
-from collections import Counter, namedtuple
+from collections import defaultdict, namedtuple
 import json
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -62,9 +62,9 @@ def _count(gold, test):
     :param  test:  test
     :return:       (gold, test, match) counter triple
     """
-    gold_cnt = Counter()
-    test_cnt = Counter()
-    match_cnt = Counter()
+    gold_cnt = defaultdict(int)
+    test_cnt = defaultdict(int)
+    match_cnt = defaultdict(int)
     for gold_sent, test_sent in zip(gold['sentence'], test['sentence']):
         if len(gold_sent['text']) != len(test_sent['text']):
             logging.error('content of sentences are different:')
@@ -72,11 +72,17 @@ def _count(gold, test):
             logging.error('\ttest: %s', test_sent['text'])
             sys.exit(2)
         gold_nes = set([NE(_['begin'], _['end'], _['type']) for _ in gold_sent['NE']])
-        gold_cnt.update([_.cate for _ in gold_nes])
+        # gold_cnt.update([_.cate for _ in gold_nes])    # Counter only in 2.7
+        for entity in gold_nes:
+            gold_cnt[entity.cate] += 1
         test_nes = set([NE(_['begin'], _['end'], _['type']) for _ in test_sent['NE']])
-        test_cnt.update([_.cate for _ in test_nes])
+        # test_cnt.update([_.cate for _ in test_nes])    # Counter only in 2.7
+        for entity in test_nes:
+            test_cnt[entity.cate] += 1
         match_nes = gold_nes & test_nes
-        match_cnt.update([_.cate for _ in match_nes])
+        # match_cnt.update([_.cate for _ in match_nes])    # Counter only in 2.7
+        for entity in match_nes:
+            match_cnt[entity.cate] += 1
         if ERR_CATE:
             gold_only_nes = set([_ for _ in (gold_nes - match_nes) if _.cate in ERR_CATE])
             test_only_nes = set([_ for _ in (test_nes - match_nes) if _.cate in ERR_CATE])

@@ -13,7 +13,7 @@ __copyright__ = 'No copyright, just copyleft! ;)'
 ###########
 from __future__ import unicode_literals
 
-from collections import Counter
+from collections import defaultdict
 import cPickle
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -35,7 +35,7 @@ def _merge_tag_dic(w2v_dic):
     :param  w2v_dic:  word-vector dictionary
     """
     tag_dic = {}
-    cnt_dic = Counter()
+    cnt_dic = defaultdict(int)
     for item in w2v_dic.items():
         try:
             (_, tag), vec = item
