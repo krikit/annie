@@ -67,8 +67,8 @@ if __name__ == '__main__':
     _PARSER.add_option('--output', help='output file <default: stdout>', metavar='FILE')
     _OPTS, _ = _PARSER.parse_args()
     if not _OPTS.gazette:
-        print('-g option is required', file=sys.stderr)
-        _PARSER.print_usage()
+        print('-g option is required\n', file=sys.stderr)
+        _PARSER.print_help(sys.stderr)
         sys.exit(1)
     if _OPTS.input:
         sys.stdin = codecs.open(_OPTS.input, 'rt', encoding='UTF-8')

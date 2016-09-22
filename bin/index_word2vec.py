@@ -42,7 +42,7 @@ if __name__ == '__main__':
     if _OPTS.input:
         sys.stdin = codecs.open(_OPTS.input, 'rt', encoding='UTF-8')
     if not _OPTS.output:
-        print('-o option is required', file=sys.stderr)
+        print('-o option is required\n', file=sys.stderr)
         _PARSER.print_help(sys.stderr)
         sys.exit(1)
     main(_OPTS.output)

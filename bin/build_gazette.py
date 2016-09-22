@@ -101,12 +101,12 @@ if __name__ == '__main__':
     _PARSER.add_option('--output', help='output file <default: stdout>', metavar='FILE')
     _OPTS, _ = _PARSER.parse_args()
     if not _OPTS.gazette:
-        print('-g option is required', file=sys.stderr)
-        _PARSER.print_usage()
+        print('-g option is required\n', file=sys.stderr)
+        _PARSER.print_help(sys.stderr)
         sys.exit(1)
     if not _OPTS.corpus:
-        print('-c option is required', file=sys.stderr)
-        _PARSER.print_usage()
+        print('-c option is required\n', file=sys.stderr)
+        _PARSER.print_help(sys.stderr)
         sys.exit(2)
     if _OPTS.output:
         sys.stdout = codecs.open(_OPTS.output, 'wt', encoding='UTF-8')
