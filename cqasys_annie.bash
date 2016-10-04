@@ -5,11 +5,13 @@
 # environments #
 ################
 base_dir=`dirname $0`
-if [ ! -d /tmp/venv_annie ]; then
-    (>&2 echo "0) setting environments")
-    tar -C /tmp -xzf ${base_dir}/env/venv_annie.tar.gz
+if [ "`uname`" = "Linux" ]; then
+    if [ ! -d /tmp/venv_annie ]; then
+        (>&2 echo "0) setting environments")
+        tar -C /tmp -xzf ${base_dir}/env/venv_annie.tar.gz
+    fi
+    source /tmp/venv_annie/bin/activate
 fi
-source /tmp/venv_annie/bin/activate
 
 
 #############
