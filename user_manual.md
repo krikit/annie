@@ -328,6 +328,22 @@ $ source /tmp/venv_annie/bin/activate
 * `train.json` 파일을 이용해 학습한 후 `dev.json` 파일에 측정한 최종 성능은 아래와 같습니다.
 
 ```
+======== DT ========
+# of NEs in gold standard: 316
+# of NEs in test file    : 304
+# of NEs in both(matched): 276
+Precision: 0.9079
+Recall:    0.8734
+F1-score:  0.8903
+
+======== LC ========
+# of NEs in gold standard: 238
+# of NEs in test file    : 285
+# of NEs in both(matched): 216
+Precision: 0.7579
+Recall:    0.9076
+F1-score:  0.8260
+
 ======== OG ========
 # of NEs in gold standard: 412
 # of NEs in test file    : 327
