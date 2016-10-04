@@ -114,13 +114,13 @@ AAAAAAA                   AAAAAAAnnnnnn    nnnnnn  nnnnnn    nnnnnniiiiiiii    e
 * 배포 페이지( https://github.com/krikit/annie/releases )에서 원하는 버전을 다운로드 받습니다.
 
 ```
-$ wget https://github.com/krikit/annie/archive/0.4.tar.gz
+$ wget https://github.com/krikit/annie/archive/0.5.tar.gz
 ```
 
-* 압축을 풀면 annie-$VERSION 디렉토리가 생성됩니다. (문서를 작성하는 시점의 최신 버전은 0.4입니다.)
+* 압축을 풀면 annie-$VERSION 디렉토리가 생성됩니다. (문서를 작성하는 시점의 최신 버전은 0.5입니다.)
 
 ```
-$ tar -xzf 0.4.tar.gz
+$ tar -xzf 0.5.tar.gz
 ```
 
 #### 2.1.2 git clone에 의한 방법
