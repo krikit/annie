@@ -306,7 +306,7 @@ $ source /tmp/venv_annie/bin/activate
 
 * CRF 학습을 위해 -2 ~ +2 위치의 5개 형태소를 기반으로 아래의 자질을 사용했습니다.
     - lemma, lemma bigram
-    - pos tag, tag bigram, tag trigran
+    - pos tag, tag bigram, tag trigram
     - gazzete 사전 매칭 IOB2 태그 및 그 bigram, trigram
     - 1, 2음절 prefix/suffix
     - 형태소의 길이는 단독이 아니라 아래의 조합만 사용했습니다.

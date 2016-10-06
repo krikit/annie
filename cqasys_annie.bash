@@ -159,7 +159,7 @@ else
 fi
 
 
-# 4) CRF 결과에 SVM 모델으 이용해 인명 추가 태깅
+# 4) CRF 결과에 SVM 모델을 이용해 인명 추가 태깅
 (>&2 echo "4) tag PS NEs")
 python ${bin_dir}/tag_ps.py -w ${w2v_dic} \
                             -m ${rsc_dir}/nusvc_model.pkl \
