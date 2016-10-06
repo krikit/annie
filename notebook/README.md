@@ -21,6 +21,6 @@ ps_classifier.ipynb
     - 음절 길이가 3이고 품사 태그가 NNP인 단일 형태소에 대해 인명 여부를 분류하는 분류기
 
 
-annie.ipynb
------------
+annie_presentation.ipynb
+------------------------
 * 발표 자료
