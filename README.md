@@ -23,3 +23,9 @@ annie
 ----
 
 [user_manual.md](user_manual.md)
+
+
+발표 자료
+----
+
+[notebook/annie_presentation.ipynb](notebook/annie_presentation.ipynb)
