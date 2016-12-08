@@ -29,3 +29,10 @@ annie
 ----
 
 [notebook/annie_presentation.ipynb](notebook/annie_presentation.ipynb)
+
+
+라이센스
+----
+
+* 본 소스 코드에 대해 어떠한 라이센스 권리도 행사하지 않습니다.
+* License disclaimer! Just copyleft!
