@@ -41,7 +41,7 @@ annie
 
 ### 말뭉치(Corpus)
 
-* 본 프로그램에서 학습 및 평가에 사용하는 말뭉치는 ETRI 연구 결과물 중 기술이전 대상인 [한국어 세분류 개체명 태깅말뭉치 DB](https://itec.etri.re.kr/itec/sub02/sub02_01_1.do?t_id=1123-2015-00236#1)의 일부를 사용한 것으로 알고 있습니다.
-* [2016년 한글 및 한국어 정보처리 학술대회](https://sites.google.com/site/2016hclt/)에서 해당 말뭉치를 "2016년 엑소브레인 V2.0 & 울산대학교 말뭉치"라는 명칭의 CD로 배포했으니 자세한 내용은 아래 두 파일을 참고하시기 바랍니다.
-    - [소개자료](corpus/001.introduction.pdf)
-    - [사용허가협약](corpus/002.license_agreement.pdf)
+* 국립국어원 언어정보나눔터 홈페이지에서 개체명 인식용 말뭉치를 공개했습니다.
+    - 통합자료실 => 기타 참고자료 게시판으로 이동합니다.
+    - https://ithub.korean.go.kr/user/total/referenceManager.do
+    - 114번 게시물 "개체명 인식용 말뭉치" 글에 첨부된 "개체명 인식용 말뭉치.zip" 파일을 사용하시면 됩니다.
